@@ -71,7 +71,7 @@ public class MultipleAttributeAddition extends AbstractTask implements Rank {
         clusters = ClusterUtils.setEdgeScoresInCluster(network, clusters, edgeAttributes, clusterColumnName, false);
         taskMonitor.setProgress(0.80);
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Sorting and ranking clusters");
-        ClusterUtils.ascendingSort(clusters);
+        ClusterUtils.rankByScoreThenClusterNum(clusters);
         NodeCluster.setClusterRanks(clusters);
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Insert cluster information in tables");
         ClusterUtils.insertResultsInColumns(network, clusters, SHORTNAME);

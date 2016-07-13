@@ -53,7 +53,7 @@ public class NodeCluster extends ArrayList<CyNode> {
 	public static void init() { clusterCount = 0; hasScore = false; }
 	public static boolean hasScore() { return hasScore; }
 
-	public int getClusterNumber() { return clusterNumber; }
+	public Integer getClusterNumber() { return clusterNumber; }
 
 	public void setClusterNumber(int clusterNumber) {
 		this.clusterNumber = clusterNumber;
@@ -72,7 +72,7 @@ public class NodeCluster extends ArrayList<CyNode> {
         this.rank = rank;
     }
 
-    public double getRankScore() { return rankScore; }
+    public Double getRankScore() { return rankScore; }
 
     public void setRankScore(double rankScore) {
         this.rankScore = rankScore;

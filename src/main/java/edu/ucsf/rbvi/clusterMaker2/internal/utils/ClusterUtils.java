@@ -214,14 +214,14 @@ public class ClusterUtils {
             clusters.add(cluster);
         }
 
-        ascendingSort(clusters);
+        rankByScoreThenClusterNum(clusters);
         return clusters;
     }
 
-    public static void ascendingSort(List<NodeCluster> clusters) {
+    public static void rankByScoreThenClusterNum(List<NodeCluster> clusters) {
         clusters.sort((a, b) -> {
-            if (a.getRankScore() == b.getRankScore()) {
-                return 0;
+            if (a.getRankScore().compareTo(b.getRankScore()) == 0) {
+                return a.getClusterNumber().compareTo(b.getClusterNumber());
             } else if (a.getRankScore() > b.getRankScore()) {
                 return -1;
             } else {
