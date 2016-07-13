@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.scoring.PageRankWithPriors;
 import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Hypergraph;
+import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.ucsf.rbvi.clusterMaker2.internal.algorithms.NodeCluster;
@@ -130,7 +131,7 @@ public class PRWP extends AbstractTask implements Rank {
             PRNode targetNode = idToNode.get(edge.getTarget().getSUID());
             PREdge prEdge = new PREdge(edge);
             insertEdgeScore(prEdge, edgeTable, edgeAttributes);
-            graph.addEdge(prEdge, new Pair<>(sourceNode, targetNode), EdgeType.DIRECTED);
+            graph.addEdge(prEdge, new Pair<>(sourceNode, targetNode));
         }
     }
 
@@ -147,7 +148,7 @@ public class PRWP extends AbstractTask implements Rank {
         nodeAttributes = context.getSelectedNodeAttributes();
         edgeAttributes = context.getSelectedEdgeAttributes();
 
-        graph = new DirectedSparseMultigraph<>();
+        graph = new UndirectedSparseMultigraph<>();
         idToNode = new HashMap<>();
         nodeList = network.getNodeList();
         edgeList = network.getEdgeList();
