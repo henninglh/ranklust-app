@@ -24,6 +24,7 @@ import org.cytoscape.work.Tunable;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PRWP extends AbstractTask implements Rank {
     private ClusterManager manager;
@@ -107,15 +108,24 @@ public class PRWP extends AbstractTask implements Rank {
     }
 
     private void insertScores(List<NodeCluster> clusters, PageRankWithPriors<PRNode, PREdge> pageRank) {
-        for (PRNode node : graph.getVertices()) {
-            node.setPRScore(pageRank.getVertexScore(node));
+        Map<Long, Double> nodeToScore = new HashMap<>();
 
+        for (PRNode node : graph.getVertices()) {
+            Double score = pageRank.getVertexScore(node);
+            node.setPRScore(score);
+            nodeToScore.put(node.getCyNode().getSUID(), score);
+
+            // Cluster value insert
             for (NodeCluster cluster : clusters) {
                 if (cluster.getNodeScores().containsKey(node.getCyNode().getSUID())) {
-                    cluster.addScoreToAvg(pageRank.getVertexScore(node));
+                    cluster.addScoreToAvg(score);
                 }
             }
         }
+
+        // Single node value insert
+        ClusterUtils.normalizeScores(nodeToScore);
+        ClusterUtils.insertScoreInColumn(nodeToScore, nodeTable, PRWP.SHORTNAME + "_single");
     }
 
     private PageRankWithPriors<PRNode, PREdge> performPageRank() {

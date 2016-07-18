@@ -2,6 +2,7 @@ package edu.ucsf.rbvi.clusterMaker2.internal.utils;
 
 import edu.ucsf.rbvi.clusterMaker2.internal.algorithms.NodeCluster;
 import edu.ucsf.rbvi.clusterMaker2.internal.api.ClusterManager;
+import edu.ucsf.rbvi.clusterMaker2.internal.treeview.dendroview.DoubleArrayDrawer;
 import org.cytoscape.model.*;
 
 import java.util.ArrayList;
@@ -39,6 +40,38 @@ public class ClusterUtils {
                 }
             }
         }
+    }
+
+    public static void insertScoreInColumn(Map<Long, Double> nodeToScore, CyTable table, String columnName) {
+        createNewSingleColumn(table, columnName, Double.class, false);
+        for (Long nodeID : nodeToScore.keySet()) {
+            table.getRow(nodeID).set(columnName, nodeToScore.get(nodeID));
+        }
+    }
+
+    public static void normalizeScores(Map<Long, Double> nodeToScore) {
+        double min = findMin(nodeToScore);
+        double max = findMax(nodeToScore);
+
+        for (Long nodeID : nodeToScore.keySet()) {
+            nodeToScore.put(nodeID, (nodeToScore.get(nodeID) - min) / (max - min));
+        }
+    }
+
+    private static Double findMax(Map<Long, Double> nodeToScore) {
+        double max = Double.MIN_VALUE;
+        for (Long nodeID : nodeToScore.keySet()) {
+            max = Double.max(max, nodeToScore.get(nodeID));
+        }
+        return max;
+    }
+
+    private static Double findMin(Map<Long, Double> nodeToScore) {
+        double min = Double.MAX_VALUE;
+        for (Long nodeID : nodeToScore.keySet()) {
+            min = Double.min(min, nodeToScore.get(nodeID));
+        }
+        return min;
     }
 
     public static List<NodeCluster> setEdgeScoresInCluster(CyNetwork network, List<NodeCluster> clusters, List<String> edgeAttributes, String clusterColumnName, boolean multiplicative) {
