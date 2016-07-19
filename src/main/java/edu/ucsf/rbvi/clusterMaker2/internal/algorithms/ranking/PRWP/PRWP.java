@@ -109,14 +109,14 @@ public class PRWP extends AbstractTask implements Rank {
         Map<Long, Double> nodeToScore = new HashMap<>();
         String newShortname = PRWP.SHORTNAME + "_single";
 
+        for (PRNode node : graph.getVertices()) {
+            Double score = pageRank.getVertexScore(node);
+            nodeToScore.put(node.getCyNode().getSUID(), score);
+        }
+
         // Single node value insert
         ClusterUtils.normalizeScores(nodeToScore);
         ClusterUtils.insertScoreInColumn(nodeToScore, nodeTable, PRWP.SHORTNAME + "_single");
-        for (PRNode node : graph.getVertices()) {
-            Double score = pageRank.getVertexScore(node);
-            //node.setPRScore(score);
-            nodeToScore.put(node.getCyNode().getSUID(), score);
-        }
 
         // Cluster value insert
         for (NodeCluster cluster : clusters) {
