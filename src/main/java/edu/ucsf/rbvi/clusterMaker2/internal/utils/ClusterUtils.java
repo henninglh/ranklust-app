@@ -2,7 +2,6 @@ package edu.ucsf.rbvi.clusterMaker2.internal.utils;
 
 import edu.ucsf.rbvi.clusterMaker2.internal.algorithms.NodeCluster;
 import edu.ucsf.rbvi.clusterMaker2.internal.api.ClusterManager;
-import edu.ucsf.rbvi.clusterMaker2.internal.treeview.dendroview.DoubleArrayDrawer;
 import org.cytoscape.model.*;
 
 import java.util.ArrayList;
@@ -49,13 +48,16 @@ public class ClusterUtils {
         }
     }
 
-    public static void normalizeScores(Map<Long, Double> nodeToScore) {
+    public static Map<Long, Double> normalizeScores(Map<Long, Double> nodeToScore) {
+        Map<Long, Double> normalized = new HashMap<>();
         double min = findMin(nodeToScore);
         double max = findMax(nodeToScore);
 
         for (Long nodeID : nodeToScore.keySet()) {
-            nodeToScore.put(nodeID, (nodeToScore.get(nodeID) - min) / (max - min));
+            normalized.put(nodeID, (nodeToScore.get(nodeID) - min) / (max - min));
         }
+
+        return normalized;
     }
 
     private static Double findMax(Map<Long, Double> nodeToScore) {

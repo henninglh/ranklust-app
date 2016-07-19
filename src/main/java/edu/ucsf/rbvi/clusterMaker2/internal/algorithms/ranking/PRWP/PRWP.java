@@ -107,7 +107,6 @@ public class PRWP extends AbstractTask implements Rank {
 
     private void insertScores(List<NodeCluster> clusters, PageRankWithPriors<PRNode, PREdge> pageRank) {
         Map<Long, Double> nodeToScore = new HashMap<>();
-        String newShortname = PRWP.SHORTNAME + "_single";
 
         for (PRNode node : graph.getVertices()) {
             Double score = pageRank.getVertexScore(node);
@@ -115,15 +114,14 @@ public class PRWP extends AbstractTask implements Rank {
         }
 
         // Single node value insert
-        ClusterUtils.normalizeScores(nodeToScore);
-        ClusterUtils.insertScoreInColumn(nodeToScore, nodeTable, PRWP.SHORTNAME + "_single");
+        ClusterUtils.insertScoreInColumn(ClusterUtils.normalizeScores(nodeToScore), nodeTable,
+                PRWP.SHORTNAME + "_single");
 
         // Cluster value insert
         for (NodeCluster cluster : clusters) {
             for (CyNode cyNode : cluster) {
-                double nodeScore = nodeTable.getRow(cyNode.getSUID()).get(newShortname, Double.class, 0.0);
+                double nodeScore = nodeToScore.get(cyNode.getSUID());
                 cluster.addScoreToAvg(nodeScore / cluster.size());
-
             }
         }
     }
