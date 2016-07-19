@@ -2,10 +2,8 @@ package edu.ucsf.rbvi.clusterMaker2.internal.algorithms.ranking.PRWP;
 
 import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.scoring.PageRankWithPriors;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
 import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
-import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.ucsf.rbvi.clusterMaker2.internal.algorithms.NodeCluster;
 import edu.ucsf.rbvi.clusterMaker2.internal.algorithms.ranking.units.PREdge;
@@ -109,23 +107,25 @@ public class PRWP extends AbstractTask implements Rank {
 
     private void insertScores(List<NodeCluster> clusters, PageRankWithPriors<PRNode, PREdge> pageRank) {
         Map<Long, Double> nodeToScore = new HashMap<>();
-
-        for (PRNode node : graph.getVertices()) {
-            Double score = pageRank.getVertexScore(node);
-            node.setPRScore(score);
-            nodeToScore.put(node.getCyNode().getSUID(), score);
-
-            // Cluster value insert
-            for (NodeCluster cluster : clusters) {
-                if (cluster.getNodeScores().containsKey(node.getCyNode().getSUID())) {
-                    cluster.addScoreToAvg(score);
-                }
-            }
-        }
+        String newShortname = PRWP.SHORTNAME + "_single";
 
         // Single node value insert
         ClusterUtils.normalizeScores(nodeToScore);
         ClusterUtils.insertScoreInColumn(nodeToScore, nodeTable, PRWP.SHORTNAME + "_single");
+        for (PRNode node : graph.getVertices()) {
+            Double score = pageRank.getVertexScore(node);
+            //node.setPRScore(score);
+            nodeToScore.put(node.getCyNode().getSUID(), score);
+        }
+
+        // Cluster value insert
+        for (NodeCluster cluster : clusters) {
+            for (CyNode cyNode : cluster) {
+                double nodeScore = nodeTable.getRow(cyNode.getSUID()).get(newShortname, Double.class, 0.0);
+                cluster.addScoreToAvg(nodeScore / cluster.size());
+
+            }
+        }
     }
 
     private PageRankWithPriors<PRNode, PREdge> performPageRank() {
