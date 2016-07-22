@@ -50,7 +50,7 @@ public class ClusterUtils {
 
     public static Map<Long, Double> normalizeScores(Map<Long, Double> nodeToScore) {
         Map<Long, Double> normalized = new HashMap<>();
-        double min = findMin(nodeToScore);
+        double min = 0.0;
         double max = findMax(nodeToScore);
 
         for (Long nodeID : nodeToScore.keySet()) {
