@@ -116,7 +116,7 @@ public class NodeCluster extends ArrayList<CyNode> {
     }
 
 	public static void normalizeScores(List<NodeCluster> clusters) {
-		double min = getMinRankScore(clusters);
+		double min = 0.0;
 		double max = getMaxRankScore(clusters);
 
 		for (NodeCluster cluster : clusters) {
