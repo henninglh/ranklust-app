@@ -21,6 +21,7 @@ import org.cytoscape.work.ContainsTunables;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -87,6 +88,7 @@ public class PR extends AbstractTask implements Rank {
 
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Setting edge scores in clusters");
         addEdges();
+        normalizeEdgeWeightsToOne();
         taskMonitor.setProgress(0.7);
 
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Calculating PageRank scores");
@@ -102,6 +104,24 @@ public class PR extends AbstractTask implements Rank {
 
         taskMonitor.setProgress(1.0);
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Done...");
+    }
+
+    // PageRank/PageRankWithPriors does not normalize to 1
+    private void normalizeEdgeWeightsToOne() {
+        for (PRNode node : graph.getVertices()) {
+            Collection<PREdge> edges = graph.getOutEdges(node);
+            Double sum = edges.parallelStream().mapToDouble(PREdge::getScore).sum();
+
+            if (sum == 0.0) {
+                for (PREdge edge : edges) {
+                    edge.setScore(1.0 / graph.degree(node));
+                }
+            } else {
+                for (PREdge edge : edges) {
+                    edge.setScore(edge.getScore() / sum);
+                }
+            }
+        }
     }
 
     private void insertScores(List<NodeCluster> clusters, PageRank<PRNode, PREdge> pageRank) {

@@ -14,10 +14,10 @@ public class PRWPContext {
     public ClusterManager manager;
 
     @Tunable(description = "Alpha value", groups = "PRWP factors", gravity = 1.0)
-    public double alpha = 0.1;
+    public double alpha = 0.3;
 
     @Tunable(description = "Maximum iterations", groups = "PRWP factors", gravity = 10.0)
-    public int iterations = 1000;
+    public int iterations = 30;
 
     @Tunable(description = "Node attributes", groups = "Biomarker information", gravity = 20.0)
     public ListMultipleSelection<String> nodeAttributes;

@@ -17,10 +17,10 @@ public class PRContext {
     public ListMultipleSelection<String> edgeAttributes;
 
     @Tunable(description = "Alpha value", groups = "PR factors", gravity = 1.0)
-    public double alpha = 0.1;
+    public double alpha = 0.3;
 
     @Tunable(description = "Iterations", groups = "PR factors", gravity = 10.0)
-    public int iterations = 1000;
+    public int iterations = 30;
 
     public PRContext(ClusterManager manager) {
         this.manager = manager;

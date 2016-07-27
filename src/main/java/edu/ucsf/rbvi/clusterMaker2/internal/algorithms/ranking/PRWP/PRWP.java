@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import edu.uci.ics.jung.algorithms.scoring.PageRankWithPriors;
 import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.graph.UndirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.util.EdgeType;
 import edu.uci.ics.jung.graph.util.Pair;
 import edu.ucsf.rbvi.clusterMaker2.internal.algorithms.NodeCluster;
 import edu.ucsf.rbvi.clusterMaker2.internal.algorithms.ranking.units.PREdge;
@@ -20,6 +21,7 @@ import org.cytoscape.work.ContainsTunables;
 import org.cytoscape.work.TaskMonitor;
 import org.cytoscape.work.Tunable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -88,9 +90,10 @@ public class PRWP extends AbstractTask implements Rank {
 
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Setting edge scores in clusters");
         addEdges();
+        normalizeEdgeWeightsToOne();
         taskMonitor.setProgress(0.7);
 
-        taskMonitor.showMessage(TaskMonitor.Level.INFO, "Calculating PageRank scores");
+        taskMonitor.showMessage(TaskMonitor.Level.INFO, "Calculating PageRankWithPriors scores");
         PageRankWithPriors<PRNode, PREdge> pageRank = performPageRank();
         taskMonitor.setProgress(0.8);
 
@@ -105,11 +108,30 @@ public class PRWP extends AbstractTask implements Rank {
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Done...");
     }
 
+    // PageRank/PageRankWithPriors does not normalize to 1
+    private void normalizeEdgeWeightsToOne() {
+        for (PRNode node : graph.getVertices()) {
+            Collection<PREdge> edges = graph.getOutEdges(node);
+            Double sum = edges.parallelStream().mapToDouble(PREdge::getScore).sum();
+
+            if (sum == 0.0) {
+                for (PREdge edge : edges) {
+                    edge.setScore(1.0 / graph.degree(node));
+                }
+            } else {
+                for (PREdge edge : edges) {
+                    edge.setScore(edge.getScore() / sum);
+                }
+            }
+        }
+    }
+
     private void insertScores(List<NodeCluster> clusters, PageRankWithPriors<PRNode, PREdge> pageRank) {
         Map<Long, Double> nodeToScore = new HashMap<>();
 
         for (PRNode node : graph.getVertices()) {
             Double score = pageRank.getVertexScore(node);
+            System.out.println(score);
             nodeToScore.put(node.getCyNode().getSUID(), score);
         }
 
@@ -127,7 +149,12 @@ public class PRWP extends AbstractTask implements Rank {
     }
 
     private PageRankWithPriors<PRNode, PREdge> performPageRank() {
-        PageRankWithPriors<PRNode, PREdge> pageRank = new PageRankWithPriors<>(graph, transformEdge(), transformNode(), context.getAlpha());
+        PageRankWithPriors<PRNode, PREdge> pageRank;
+        if (edgeAttributes.size() == 0) {
+            pageRank = new PageRankWithPriors<>(graph, transformNode(), context.getAlpha());
+        } else {
+            pageRank = new PageRankWithPriors<>(graph, transformEdge(), transformNode(), context.getAlpha());
+        }
         pageRank.setMaxIterations(context.getMaxIterations());
         pageRank.evaluate();
         return pageRank;
@@ -139,7 +166,7 @@ public class PRWP extends AbstractTask implements Rank {
             PRNode targetNode = idToNode.get(edge.getTarget().getSUID());
             PREdge prEdge = new PREdge(edge);
             insertEdgeScore(prEdge, edgeTable, edgeAttributes);
-            graph.addEdge(prEdge, new Pair<>(sourceNode, targetNode));
+            graph.addEdge(prEdge, new Pair<>(sourceNode, targetNode), EdgeType.UNDIRECTED);
         }
     }
 
