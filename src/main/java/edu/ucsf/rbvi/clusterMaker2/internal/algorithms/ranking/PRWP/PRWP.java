@@ -90,7 +90,6 @@ public class PRWP extends AbstractTask implements Rank {
 
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Setting edge scores in clusters");
         addEdges();
-        normalizeEdgeWeightsToOne();
         taskMonitor.setProgress(0.7);
 
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Calculating PageRankWithPriors scores");
@@ -108,17 +107,13 @@ public class PRWP extends AbstractTask implements Rank {
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Done...");
     }
 
-    // PageRank/PageRankWithPriors does not normalize to 1
+    // PageRank/PageRankWithPriors does not normalize to 1 like HITS and KMarkov
     private void normalizeEdgeWeightsToOne() {
         for (PRNode node : graph.getVertices()) {
             Collection<PREdge> edges = graph.getOutEdges(node);
             Double sum = edges.parallelStream().mapToDouble(PREdge::getScore).sum();
 
-            if (sum == 0.0) {
-                for (PREdge edge : edges) {
-                    edge.setScore(1.0 / graph.degree(node));
-                }
-            } else {
+            if (sum != 0.0) {
                 for (PREdge edge : edges) {
                     edge.setScore(edge.getScore() / sum);
                 }
@@ -153,6 +148,7 @@ public class PRWP extends AbstractTask implements Rank {
         if (edgeAttributes.size() == 0) {
             pageRank = new PageRankWithPriors<>(graph, transformNode(), context.getAlpha());
         } else {
+            normalizeEdgeWeightsToOne();
             pageRank = new PageRankWithPriors<>(graph, transformEdge(), transformNode(), context.getAlpha());
         }
         pageRank.setMaxIterations(context.getMaxIterations());
