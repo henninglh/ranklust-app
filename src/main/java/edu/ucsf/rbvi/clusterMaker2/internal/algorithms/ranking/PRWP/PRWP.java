@@ -107,7 +107,7 @@ public class PRWP extends AbstractTask implements Rank {
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Done...");
     }
 
-    // PageRank/PageRankWithPriors does not normalize to 1
+    // PageRank/PageRankWithPriors does not normalize to 1 like HITS and KMarkov
     private void normalizeEdgeWeightsToOne() {
         for (PRNode node : graph.getVertices()) {
             Collection<PREdge> edges = graph.getOutEdges(node);
