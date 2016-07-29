@@ -88,7 +88,6 @@ public class PR extends AbstractTask implements Rank {
 
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Setting edge scores in clusters");
         addEdges();
-        normalizeEdgeWeightsToOne();
         taskMonitor.setProgress(0.7);
 
         taskMonitor.showMessage(TaskMonitor.Level.INFO, "Calculating PageRank scores");
@@ -137,7 +136,14 @@ public class PR extends AbstractTask implements Rank {
     }
 
     private PageRank<PRNode, PREdge> performPageRank() {
-        PageRank<PRNode, PREdge> pageRank = new PageRank<>(graph, transformEdge(), context.getAlpha());
+        PageRank<PRNode, PREdge> pageRank;
+        if (edgeAttributes.size() == 0) {
+            pageRank = new PageRankWithPriors<>(graph, context.getAlpha());
+        } else {
+            normalizeEdgeWeightsToOne();
+            pageRank = new PageRankWithPriors<>(graph, transformEdge(), context.getAlpha());
+        }
+
         pageRank.setMaxIterations(1000);
         pageRank.evaluate();
         return pageRank;
