@@ -138,10 +138,10 @@ public class PR extends AbstractTask implements Rank {
     private PageRank<PRNode, PREdge> performPageRank() {
         PageRank<PRNode, PREdge> pageRank;
         if (edgeAttributes.size() == 0) {
-            pageRank = new PageRankWithPriors<>(graph, context.getAlpha());
+            pageRank = new PageRank<>(graph, context.getAlpha());
         } else {
             normalizeEdgeWeightsToOne();
-            pageRank = new PageRankWithPriors<>(graph, transformEdge(), context.getAlpha());
+            pageRank = new PageRank<>(graph, transformEdge(), context.getAlpha());
         }
 
         pageRank.setMaxIterations(1000);
