@@ -166,10 +166,10 @@ public class ClusterUtils {
 
     private static void setRankScore(String attribute, CyRow row, NodeCluster cluster) {
         try {
-            cluster.addScoreToAvg(cluster.getRankScore() + row.get(attribute, Double.class, 0.0));
+            cluster.addScoreToAvg(row.get(attribute, Double.class, 0.0) / cluster.size());
         } catch (ClassCastException cce) {
             try {
-                cluster.addScoreToAvg(cluster.getRankScore() + row.get(attribute, Integer.class, 0));
+                cluster.addScoreToAvg(row.get(attribute, Integer.class, 0) /cluster.size());
             } catch (Exception e) { // Not a number type!
                 e.printStackTrace();
             }

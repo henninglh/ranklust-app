@@ -126,7 +126,6 @@ public class PRWP extends AbstractTask implements Rank {
 
         for (PRNode node : graph.getVertices()) {
             Double score = pageRank.getVertexScore(node);
-            System.out.println(score);
             nodeToScore.put(node.getCyNode().getSUID(), score);
         }
 
