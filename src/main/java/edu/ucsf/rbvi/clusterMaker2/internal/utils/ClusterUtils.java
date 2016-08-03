@@ -169,7 +169,7 @@ public class ClusterUtils {
             cluster.addScoreToAvg(row.get(attribute, Double.class, 0.0) / cluster.size());
         } catch (ClassCastException cce) {
             try {
-                cluster.addScoreToAvg(row.get(attribute, Integer.class, 0) /cluster.size());
+                cluster.addScoreToAvg((double) row.get(attribute, Integer.class, 0) /cluster.size());
             } catch (Exception e) { // Not a number type!
                 e.printStackTrace();
             }
